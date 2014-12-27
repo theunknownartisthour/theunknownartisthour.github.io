@@ -1,0 +1,87 @@
+<!DOCTYPE HTML>
+<html data-ng-app="BlazeCMS">
+<head>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/showdown/0.3.1/showdown.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
+<script src="Lawnchair.js"></script>
+<script src="adapters/dom.js"></script>
+<!--<script src="adapters/chrome-storage.js"></script>-->
+
+<script src="storage.js"></script>
+
+</head>
+
+<body>
+<div data-ng-controller="dataController">
+
+Input lol: <textarea data-ng-model="input.lol"></textarea><br>
+Input pop: <input type="text" data-ng-model="input.pop"><br>
+Input kind: <input type="text" value="Post" data-ng-model="input.type"><br>
+<input type="submit" value="clear" data-ng-click="clear()">
+<input type="submit" value="send" data-ng-click="send()"><br>
+<input type="submit" value="eraseAll!" data-ng-click="nuke()">
+<br>
+<div markdown="input.lol"></div>
+<div>{{data}}</div>
+<div data-ng-show="exists">Exists!</div>
+<div data-ng-hide="exists">New!</div>
+
+<ul>
+	<li>Items in Data</li>
+	<li data-ng-repeat="item in data">
+		
+		<span data-ng-repeat="(key,val) in item.value">
+			<p>{{key}} = {{val}}</p>
+			<span markdown="val"><span>
+		</span>
+		<input type="submit" value="edit" data-ng-click="edit(item.key,input)"></input><br>
+		Remove <button data-ng-click="remove(item.key)">{{item.key}}</button>
+	</li>
+</ul>
+
+<ul>
+	<li>Items in Keys</li>
+	<li data-ng-repeat="key in keys">
+		{{key}}
+	</li>
+</ul>
+
+</div>
+
+<div data-ng-controller="dataController">
+Input notlol: <input-field field-val="lol"></input-field><br>
+Input notpop: <input type="text" data-ng-model="input.notpop"><br>
+Input kind: <input type="text" value="Page" data-ng-model="input.type"><br>
+
+<input type="submit" value="clear" data-ng-click="clear()">
+<input type="submit" value="send" data-ng-click="send()"><br>
+<input type="submit" value="eraseAll!" data-ng-click="nuke()">
+<br>
+<div>{{input}}</div>
+<div>{{data}}</div>
+<div data-ng-show="exists">Exists!</div>
+<div data-ng-hide="exists">New!</div>
+
+<ul>
+	<li>Items in Data</li>
+	<li data-ng-repeat="item in data">
+		
+		<span data-ng-repeat="(key,val) in item.value">
+			<p>{{key}} = {{val}}</p>
+		</span>
+		<input type="submit" value="edit" data-ng-click="edit(item.key,input)"></input><br>
+		Remove <button data-ng-click="remove(item.key)">{{item.key}}</button>
+	</li>
+</ul>
+
+<ul>
+	<li>Items in Keys</li>
+	<li data-ng-repeat="key in keys">
+		{{key}}
+	</li>
+</ul>
+
+</div>
+
+</body>
+</html>

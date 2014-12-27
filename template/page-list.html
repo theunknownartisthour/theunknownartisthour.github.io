@@ -1,0 +1,7 @@
+<li data-ng-repeat="item in data">	
+	<span data-ng-repeat="(key,val) in item.value">
+			<p>{{key}} = {{val}}</p>
+	</span>
+	<input type="submit" value="edit" data-ng-click="edit(item.key,input)"></input><br>
+	Remove <button data-ng-click="remove(item.key)">{{item.key}}</button>
+</li>
