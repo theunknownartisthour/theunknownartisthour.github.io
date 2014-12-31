@@ -1,6 +1,11 @@
 <!DOCTYPE HTML>
 <html data-ng-app="BlazeCMS">
 <head>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+
 <script src="http://cdnjs.cloudflare.com/ajax/libs/showdown/0.3.1/showdown.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
 <script src="Lawnchair.js"></script>
@@ -12,74 +17,110 @@
 </head>
 
 <body>
+<!--Creating a form for a datastructure-->
 <div data-ng-controller="dataController">
+<!--This is just to wrap around the form area-->
+<form class="form">
+	<!--In this section I'm adding all the fields I want for these data types
+	We're creating posts and pages, so they need text fields for the body and some
+	quick info about who wrote it-->
+	<div class="form-group">
+		<label>Body</label>
+		<!--fields are made by binding an object to the locally scoped input object
+		eg if you want a species field for your crazy genetic project use
+		data-ng-model="input.species", fields are case sensitive.
+		This means every html section marked with data-ng-controller is independent of others!
+		your data "types" can change form if you're not consistent with what fields you access to edit!
+		The nice part is all sections save, delete and update the same database!-->
+		<textarea class="form-control" data-ng-model="input.body"></textarea><br>
+		<label>Author</label>
+		<textarea class="form-control" data-ng-model="input.author"></textarea><br>
+	</div>
+	<!-- forcing the default value of input.type (the data type) to "post"
+	this is done with data-ng-value or ng-value, this is then stored in defaults, and used when
+	the form is reset, whenever we clear or send data-->
+	<div class="form-group-inline">
+		<label>Type</label><br>
+		Post: <input class="form-control" type="radio" data-ng-model="input.type" data-ng-value="post" value="post" />
+		Page: <input class="form-control" type="radio" data-ng-model="input.type" value="page" />
+	</div>
+	<!--data-ng-click="clear()" will replace the input with default values-->
+	<button type="submit" class="btn btn-default" data-ng-click="clear()">Clear</button>
+	<!--data-ng-click="send()" will send the input object to be stored in the database-->
+	<button type="submit" class="btn btn-default" data-ng-click="send()">Save</button>
+	<!--data-ng-click="nuke()" completely wipes the database!-->
+	<button type="submit" class="btn btn-danger" data-ng-click="nuke()">Delete All</button>
+</form>
 
-Input lol: <textarea data-ng-model="input.lol"></textarea><br>
-Input pop: <input type="text" data-ng-model="input.pop"><br>
-Input kind: <input type="text" value="Post" data-ng-model="input.type"><br>
-<input type="submit" value="clear" data-ng-click="clear()">
-<input type="submit" value="send" data-ng-click="send()"><br>
-<input type="submit" value="eraseAll!" data-ng-click="nuke()">
 <br>
-<div markdown="input.lol"></div>
+<!--view the body "field" with markdown-->
+<div class="container" markdown="input.body"></div>
+
+<!--list off all items, (keys are fields) vals are the stored values-->
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<!--Now we're accessing the database through our local copy (data)
+			each object stored adds to its length property-->
+			<th>{{data.length}}</th>
+			<!--The database consists of our inputs being stored as "values" with unique keys
+			here we've grabbed the first database location, retrieved the input object in "value"
+			and are now creating <th> elements for every field we had originally created!
+			eg this will print out body and author
+			keep in mind javascript syntax (key,value) could be any two words you'd like to use-->
+			<th data-ng-repeat="(key,val) in data[0].value">
+				{{key}}
+			</th>
+			<th>edit</th>
+			<th>delete<th>
+		</tr>
+    </thead>
+	<tbody>
+		<!--same approach as above, but this time we're going to add an edit and delete button
+		to link to the content and we're letting data be traversed "item" by item, eg by the original input objects-->
+		<tr class="animate-repeat" data-ng-repeat="item in data">
+			<th scope="row">{{$index+1}}</th>
+			<!--spits out each field's value in the object-->
+			<td data-ng-repeat="(key,val) in item.value">
+				<!--lets see the content as it was originally created, in markdown-->
+				<span markdown="val"><span>
+			</td>
+			<!--this button takes the item's current key and swaps out the content with input
+			note that input is locally bound to the form above, we can create another form for each, but we'll leave that be-->
+			<td><button type="submit" class="btn btn-danger" data-ng-click="edit(item.key,input)">Edit</button></td>
+			<!--this button takes the item's current key and will use it to wipe out the database entry associated with it-->
+			<td><button type="submit" class="btn btn-danger" data-ng-click="remove(item.key)">{{item.key}}</button></td>
+		</tr>
+		<!--what should show up in an "empty list"-->
+		<tr class="animate-repeat" data-ng-if="data.length == 0">
+			<td>
+				No
+			</td>
+			<td>
+				Results
+			</td>
+			<td>
+				Found!
+			</td>
+		</tr>
+	</tbody>
+</table>
+<!--this is another way of accessing the database's unique keys for each value-->
+<table class="table table-striped">
+	<tr>
+		<th>Key</th>
+		<th>Edit</th>
+		<th>Delete</th>
+	</tr>
+	<tr data-ng-repeat="key in keys">
+		<td>{{key}}</td>
+		<td><button type="submit" class="btn btn-danger" data-ng-click="edit(key,input)">Edit</button></td>
+		<td><button type="submit" class="btn btn-danger" data-ng-click="remove(key)">Delete</button></td>
+	</tr>
+</table>
+
+<!--view the entire database in format (json)-->
 <div>{{data}}</div>
-<div data-ng-show="exists">Exists!</div>
-<div data-ng-hide="exists">New!</div>
-
-<ul>
-	<li>Items in Data</li>
-	<li data-ng-repeat="item in data">
-		
-		<span data-ng-repeat="(key,val) in item.value">
-			<p>{{key}} = {{val}}</p>
-			<span markdown="val"><span>
-		</span>
-		<input type="submit" value="edit" data-ng-click="edit(item.key,input)"></input><br>
-		Remove <button data-ng-click="remove(item.key)">{{item.key}}</button>
-	</li>
-</ul>
-
-<ul>
-	<li>Items in Keys</li>
-	<li data-ng-repeat="key in keys">
-		{{key}}
-	</li>
-</ul>
-
-</div>
-
-<div data-ng-controller="dataController">
-Input notlol: <input-field field-val="lol"></input-field><br>
-Input notpop: <input type="text" data-ng-model="input.notpop"><br>
-Input kind: <input type="text" value="Page" data-ng-model="input.type"><br>
-
-<input type="submit" value="clear" data-ng-click="clear()">
-<input type="submit" value="send" data-ng-click="send()"><br>
-<input type="submit" value="eraseAll!" data-ng-click="nuke()">
-<br>
-<div>{{input}}</div>
-<div>{{data}}</div>
-<div data-ng-show="exists">Exists!</div>
-<div data-ng-hide="exists">New!</div>
-
-<ul>
-	<li>Items in Data</li>
-	<li data-ng-repeat="item in data">
-		
-		<span data-ng-repeat="(key,val) in item.value">
-			<p>{{key}} = {{val}}</p>
-		</span>
-		<input type="submit" value="edit" data-ng-click="edit(item.key,input)"></input><br>
-		Remove <button data-ng-click="remove(item.key)">{{item.key}}</button>
-	</li>
-</ul>
-
-<ul>
-	<li>Items in Keys</li>
-	<li data-ng-repeat="key in keys">
-		{{key}}
-	</li>
-</ul>
 
 </div>
 
