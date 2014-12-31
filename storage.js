@@ -8,19 +8,21 @@ app.controller('dataController',function($scope){
 	$scope.name;
 	$scope.data;
 	$scope.keys;
-	$scope.clear = function(){$scope.input = "";};
+	$scope.clear = function(){
+		$scope.input = $scope.defaults;
+	};
 	$scope.loaded = false;
 	$scope.save = function() {
 		store.save({key: $scope.key,value: $scope.input},'console.log(record)');
-		$scope.load();
+		$scope.reload();
 	}
 	$scope.edit = function(keyid,newval){
 		store.save({key: keyid, value: newval});
-		$scope.load();
+		$scope.reload();
 	}
 	$scope.remove = function(key) {
 		store.remove(key,'console.log');
-		$scope.load();
+		$scope.reload();
 	}
 	$scope.getValue = function(key) {
 		store.get(key,'console.log(record)');
@@ -30,6 +32,14 @@ app.controller('dataController',function($scope){
 	}
 	$scope.batch = function(){
 		store.batch($scope.input,'console.log(record)');
+	}
+	$scope.setdefaults = function(){
+		if($scope.defaultsloaded){
+			
+		} else {
+			$scope.defaults = $scope.input;
+			$scope.defaultsloaded = true;
+		}
 	}
 	$scope.send = function(){
 		$scope.save();
@@ -44,17 +54,24 @@ app.controller('dataController',function($scope){
 	$scope.load = function(){
 		store.all($scope.setDataArray);
 		store.keys($scope.setDataKeys);
-		console.log(store);
+		//console.log(store);
 		$scope.name = store.name;
-		console.log($scope.name);
+		//console.log($scope.name);
 		$scope.record = store.record;
-		console.log($scope.record);
+		//console.log($scope.record);
+		$scope.loaded = true;
+	}
+	$scope.reload = function(){
+		store.all($scope.setDataArray);
+		store.keys($scope.setDataKeys);
 		$scope.loaded = true;
 	}
 	$scope.nuke = function(){
 		store.nuke();
+		$scope.reload();
 	};
 	$scope.load();
+	$scope.setdefaults();
 });
 
 app.directive('inputField', function(){
@@ -63,7 +80,7 @@ app.directive('inputField', function(){
 		scope: {
 			fieldVal: '@'
 		},
-		template: '<input data-ng-model="input.fieldVal">'
+		template: '<textarea class="form-control" type="text" data-ng-model="input.fieldVal"></textarea>'
 	};
 });
 
